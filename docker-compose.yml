@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: tz_db
+      POSTGRES_USER: tz_user
+      POSTGRES_PASSWORD: tz_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_URL: jdbc:postgresql://db:5432/tz_db
+      DB_USER: tz_user
+      DB_PASSWORD: tz_password
+      APP_JWT_SECRET: devsecretkeydevsecretkeydevsecret12
+      APP_JWT_EXPIRATION_MS: 3600000
+    ports:
+      - "8080:8080"
+    restart: always
+    # Uncomment if you want to wait for db to be ready
+    # entrypoint: ["sh", "-c", "./wait-for-it.sh db:5432 -- java -jar app.jar"]
+
+volumes:
+  pgdata: 
